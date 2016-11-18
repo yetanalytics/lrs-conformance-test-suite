@@ -250,8 +250,9 @@ describe('Agents Resource Requirements (Communication 2.4)', () => {
 
         return helper.sendRequest('post', helper.getEndpointStatements(), undefined, [statement], 200)
             .then(function () {
-                return helper.sendRequest('get', helper.getEndpointAgents(), { agent: statement.actor }, undefined, 200)
+                return helper.sendRequest('waitget', helper.getEndpointAgents(), { agent: statement.actor }, undefined, 200)
                     .then(function (res) {
+                        console.log("test top level theen");
                         var person = res.body;
                         expect(person).to.have.property('account').to.be.an('array');
                         person.account.forEach(function(item){

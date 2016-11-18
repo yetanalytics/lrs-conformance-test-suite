@@ -442,7 +442,58 @@ if (!process.env.EB_NODE_COMMAND) {
          * @param {number} expect the result of the request
          * @returns {*} promise
          */
+        waitGetPromise : function(type, url, params, body, expect, p, depth)
+        {
+            var comb = require("comb");
+            if(!p)
+              p = new comb.Promise();
+
+            if(!depth) depth = 0;depth
+            depth = depth + 1;
+
+            var config = type;
+
+            var method = config.method || "get";
+            var expect = config.expect || 200;
+            var maxTime = config.maxTime || 10;
+            var url = config.url || url;
+            var proceedWhen = config.proceedWhen || function(res)
+            {
+                return res.status == expect;
+            }
+
+            var self = this;
+            setTimeout(function(){
+                self.sendRequest(method,url, params, body, expect).then(function(res)
+                {
+                    if(proceedWhen(res))
+                    {
+                        p.resolve(undefined,res);
+                    }
+                    else
+                    {
+                        if(depth < maxTime)
+                            self.waitGetPromise(type, url, params, body, expect,p,depth)
+                        else
+                        {
+                            p.resolve(new Error("timeout waiting for proceedWhen"));
+                        }
+                    }
+                });
+
+            },1000);
+            
+            return p;
+        },
         sendRequest: function (type, url, params, body, expect) {
+
+
+            if(type == "waitget" || type.constructor == Object)
+            {
+                console.log("enter waitget");
+                return this.waitGetPromise(type, url, params, body, expect);
+            }
+
             var request = require('supertest-as-promised');
             request = request(module.exports.getEndpointAndAuth())
             var reqUrl = params ? (url + '?' + module.exports.getUrlEncoding(params)) : url;
