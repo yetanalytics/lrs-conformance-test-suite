@@ -82,14 +82,14 @@
                         ],
                         expect: [400]
                     },
-                    {
+                    /*{
                         name: 'statement StatementRef should fail on "statementref"',
                         templates: [
                             {statement: '{{statements.object_statementref}}'},
                             {objectType: INVALID_STATEMENTREF}
                         ],
                         expect: [400]
-                    },
+                    },*/
                     {
                         name: 'statement substatement StatementRef should fail on "statementref"',
                         templates: [
